@@ -1,0 +1,5 @@
+selenium>=4.0.0
+requests>=2.25.0
+pillow>=8.0.0
+pycurl>=7.45.0
+httpx>=0.21.0
