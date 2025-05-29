@@ -1,117 +1,101 @@
-# Website-Monitoring
-Repository for Website Monitoring 
-Zabbix Web Monitoring with PageSpeed, Load Metrics & Visual Dashboard
-This project includes 3 external scripts integrated with Zabbix for enhanced web monitoring and alerting. It also provides macros, template import, and a Grafana dashboard for visualization.
+# Website Performance Monitoring with Zabbix & Grafana
 
-Project Files
-Place the following Python scripts into the Zabbix externalscripts directory:
-
-bash
-Copy
-Edit
-sudo cp vu_report_new.py website.py wt.py /usr/lib/zabbix/externalscripts/
-sudo chmod +x /usr/lib/zabbix/externalscripts/*.py
-Install Python Dependencies
-Install all dependencies using requirements.txt:
-
-bash
-Copy
-Edit
-pip install -r requirements.txt
-Content of requirements.txt:
-
-text
-Copy
-Edit
-selenium>=4.0.0
-requests>=2.25.0
-pillow>=8.0.0
-pycurl>=7.45.0
-httpx>=0.21.0
-Import Zabbix Template
-Login to Zabbix frontend.
-
-Navigate to: Configuration → Templates → Import
-
-Import file: zbx_export_templates (3).json
-
-Link Template to Host
-Go to: Configuration → Hosts
-
-Choose your target host.
-
-Under Templates, click Link new templates
-
-Select the imported template and save.
-
-Configure Zabbix Macros
-Set the following macros for your host:
-
-Macro	Value
-{$API_KEY}	AIzaSyDXf_9V_-ITsUIQ4-s5uIEPjxQ-SOl2Xt4
-{$CERT.EXPIRY.WARN}	30
-{$DNS.QUERY.WARN}	100
-{$DOWNLOAD.SPEED.WARN}	100
-{$PAGE.LOAD.WARN}	1000
-{$SSL.HANDSHAKE.WARN}	150
-{$TCP.WARN}	100
-{$TTFB.WARN}	200
-{$WEB.URL}	App.pssadvantage.com
-{$WT.DATA}	```json
-{	
-"data": [	
-
-json
-Copy
-Edit
-{
-  "page_name": "login",
-  "url": "https://App.pssadvantage.com"
-}
-]
-}
-
-|
-Copy
-Edit
+This project provides website performance and availability monitoring using Zabbix external scripts, Google PageSpeed Insights, and a custom Grafana dashboard.
 
 ---
 
-## 📊 Setup Grafana Visualization
+## Step 1: Download Required Files
+
+Copy the following Python scripts to the Zabbix `externalscripts` directory:
+
+```bash
+sudo cp vu_report_new.py /usr/lib/zabbix/externalscripts/
+sudo cp website.py /usr/lib/zabbix/externalscripts/
+sudo cp wt.py /usr/lib/zabbix/externalscripts/
+```
+
+Make them executable:
+
+```bash
+sudo chmod +x /usr/lib/zabbix/externalscripts/*.py
+```
+
+---
+
+## Step 2: Install Python Dependencies
+
+Use `requirements.txt` to install required packages:
+
+```bash
+pip install -r requirements.txt
+```
+
+### `requirements.txt` should contain:
+
+```
+selenium
+requests
+pillow
+pycurl
+httpx
+```
+
+---
+
+## Step 3: Import Zabbix Template
+
+1. Log in to your Zabbix frontend.
+2. Navigate to **Configuration > Templates**.
+3. Click **Import**.
+4. Upload the file:  
+   `zbx_export_templates (3).json`
+5. Attach the imported template to your Zabbix host.
+
+---
+
+## Step 4: Add Required Macros to Host
+
+Go to your host configuration and add the following macros:
+
+| Macro | Value | Description |
+|-------|-------|-------------|
+| {$API_KEY} | AlzaSyDxf_9V_-ITsUIQ4-s5uIEPjxQ-SOl2Xt4 | API key for Google PageSpeed Insights |
+| {$CERT.EXPIRY.WARN} | 30 | SSL certificate expiry threshold in days |
+| {$DNS.QUERY.WARN} | 100 | DNS lookup threshold in ms |
+| {$DOWNLOAD.SPEED.WARN} | 100 | Download speed threshold in kbps |
+| {$PAGE.LOAD.WARN} | 1000 | Page load time threshold in ms |
+| {$SSL.HANDSHAKE.WARN} | 150 | SSL handshake threshold in ms |
+| {$TCP.WARN} | 100 | TCP connect threshold in ms |
+| {$TTFB.WARN} | 200 | Time To First Byte threshold in ms |
+| {$WEB.URL} | App.pssadvantage.com | Domain or site to monitor |
+| {$WT.DATA} | `{ "data": [ { "page_name": "login", "url": "https://App.pssadvantage.com" } ] }` | Page list in JSON format |
+
+---
+
+## Step 5: Grafana Setup
+
+### A. Add Zabbix as a Data Source
 
 1. Open Grafana.
-2. Go to **Connections → Data Sources**.
-3. Add a **Zabbix** data source:
-   - URL: your Zabbix frontend URL (e.g., `http://localhost/zabbix`)
-   - Zabbix API details as required.
-4. Import Dashboard:
-   - Go to **Dashboards → Import**
-   - Upload or paste JSON from `Web Monitoring-1748526175925.json`
-   - Assign your Zabbix data source.
+2. Go to **Connections > Data Sources**.
+3. Click **Add data source**.
+4. Select **Zabbix**.
+5. Configure:
+   - URL: Your Zabbix frontend URL
+   - Username/Password: Zabbix credentials
+   - Zabbix API: Enabled
+6. Click **Save & Test**.
+
+### B. Import Grafana Dashboard
+
+1. Go to **Dashboards > Import**.
+2. Upload the file:  
+   `Web Monitoring-1748526175925.json`
+3. Select the previously added Zabbix data source when prompted.
+4. Click **Import**.
 
 ---
 
-## ✅ Final Checks
+## Done!
 
-- Ensure Zabbix server and agent have permission to run Python scripts.
-- Confirm external checks are enabled in `zabbix_server.conf`:
-  ```bash
-  ExternalScripts=/usr/lib/zabbix/externalscripts
-Restart Zabbix server after configuration:
-
-bash
-Copy
-Edit
-sudo systemctl restart zabbix-server
-📁 Repository Structure
-pgsql
-Copy
-Edit
-/your-repo/
-├── vu_report_new.py
-├── website.py
-├── wt.py
-├── requirements.txt
-├── zbx_export_templates (3).json
-├── Web Monitoring-1748526175925.json
-└── README.md
+You should now see live website monitoring metrics in both Zabbix and Grafana. You can customize alert thresholds by editing the macros on the host.
